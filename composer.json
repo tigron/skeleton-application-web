@@ -1,0 +1,22 @@
+{
+    "name": "tigron/skeleton-application-web",
+    "description": "Web application for Skeleton",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tigron BVBA",
+            "email": "support@tigron.be"
+        }
+    ],
+    "require": {
+        "tigron/skeleton-core": ">=3.0.1",
+        "tigron/skeleton-template-twig": ">=2",
+    },
+    "suggest": {
+        "tigron/skeleton-template": "*"
+    },
+    "autoload": {
+        "psr-4": { "Skeleton\\Application\\": "lib/Skeleton/Application/" }
+    }
+}
