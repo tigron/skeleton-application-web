@@ -32,30 +32,18 @@ their correct namespace. The following namespaces should be used:
 
 ## Configuration
 
-The following configurations can be set:
+For this application, the [skeleton-core](https://github.com/tigron/skeleton-core)
+Application configuration is required. Additional configuration can be found
+below:
 
 |Configuration|Description|Default value|Example values|
 |----|----|----|----|
-|application_type|(optional)Sets the application to the required type|\Skeleton\Application\Web|This must be set to \Skeleton\Application\Web|
-|hostnames|(required)an array containing the hostnames to listen for. Wildcards can be used via `*`.| []| [ 'www.example.be, '*.example.be' ]|
 |routes|Array with route information|[]| See routes |
 |module_default|The default module to search for|'index'||
-|module_404|The 404 module on fallback when no module is found|'404'||
 |sticky_pager|Enable sticky pager|false|Only available if [skeleton-pager](https://github.com/tigron/skeleton-pager) is installed|
 |route_resolver|Closure to provide module resolving based on requested path|Internal module resolver||
 |csrf_enabled|Enable CSRF|false|true/false|
 |replay_enabled|Prevent replay attack|false|true/false|
-
-
-
-#### Handling of media files
-
-If the requested url contains an extension which matches a known media type, the
-requested file will be served from the `media/` directory of the application.
-
-If the requested media file could not be found, `skeleton-core` will search for
-a matching file in the folder specified by configuration directive `asset_dir`
-(if any).
 
 ### routes
 
@@ -122,4 +110,237 @@ Some examples:
 | -------------    | ---------           | --------             |
 | /user            | \App\APP_NAME\Module\User     | display()            |
 | /user?action=test| \App\APP_NAME\Module\User     | display_test()       |
+
+
+### CSRF
+
+The `skeleton-application-web` package can take care of automatically injecting
+and validating CSRF tokens for every `POST` request it receives. Various events
+have been defined, with which you can control the CSRF flow. A list of these
+events can be found further down.
+
+CSRF is disabled globally by default. If you would like to enable it, simply
+flip the `csrf_enabled` flag to true, via configuration directive `csrf_enabled`
+
+Once enabled, it is enabled for all your applications. If you want to disable it
+for specific applications only, flip the `csrf_enabled` flag to `false` in the
+application's configuration.
+
+Several events are available to control the CSRF behaviour, these have been
+documented below.
+
+When enabled, hidden form elements with the correct token as a value will
+automatically be injected into every `<form>...</form>` block found. This allows
+for it to work without needing to change your code.
+
+If you need access to the token value and names, you can access them from the
+`env` variable which is automatically assigned to your template. The available
+variables are listed below:
+
+- env.csrf_header_token_name
+- env.csrf_post_token_name
+- env.csrf_session_token_name
+- env.csrf_token
+
+One caveat are `XMLHttpRequest` calls (or `AJAX`). If your application is using
+`jQuery`, you can use the example below to automatically inject a header for
+every relevant `XMLHttpRequest`.
+
+First, make the token value and names available to your view. A good place to do
+so, might be the document's `<head>...</head>` block.
+
+    <!-- CSRF token values -->
+    <meta name="csrf-header-token-name" content="{{ env.csrf_header_token_name }}">
+    <meta name="csrf-token" content="{{ env.csrf_token }}">
+
+Next, we can make use of `jQuery`'s `$.ajaxSend()`. This allows you to
+configure settings which will be applied for every subsequent `$.ajax()` call
+(or derivatives thereof, such as `$.post()`).
+
+    $(document).ajaxSend(function(e, xhr, settings) {
+        if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
+		    xhr.setRequestHeader($('meta[name="csrf-header-token-name"]').attr('content'), $('meta[name="csrf-token"]').attr('content'));
+		}
+    });
+
+Notice the check for the request type and cross domain requests. This avoids
+sending your token along with requests which don't need it.
+
+### Replay
+
+The built-in replay detection tries to work around duplicate form submissions by
+users double-clicking the submit button. Often, this is not caught in the UI.
+
+Replay detection is disabled by default, if you would like to enable it, flip
+the `replay_enabled` configuration directive to true.
+
+You can disable replay detection for individual applications by setting the
+`replay_enabled` flag to `false` in their respective configuration.
+
+When the replay detection is enabled, it will inject a hidden `__replay-token`
+element into every `form` element it can find. Each token will be unique. Once
+submited, the token is added to a list of tokens seen before. If the same token
+appears again within 30 seconds, the replay detection will be triggered.
+
+If your application has defined a `replay_detected` event, this will be called.
+It is up to the application to decide what action to take. One suggestion is to
+redirect the user to the value HTTP referrer, if present.
+
+## Events
+
+Events can be created to perform a task at specific key points during the
+application's execution. This application supports all available events
+described in [skeleton-core](https://github.com/tigron/skeleton-core).
+Additionally, the following events are available:
+
+### I18n context
+
+#### get_translator_extractor
+
+Get a Translator\Extractor for this application. If not provided, a
+Translator\Extractor\Twig is created for the template-directory of the
+application.
+
+	public function get_translator_extractor(): \Skeleton\I18n\Translator\Extractor
+
+#### get_translator_storage
+
+Get a Translator\Storage for this application. If not provided, a
+Translator\Storage\Po is created, but only if a default storage path is
+configured.
+
+	public function get_translator_storage(): \Skeleton\I18n\Translator\Storage
+
+#### get_translator
+
+Get a Translator object for this application. If no translation is needed,
+return null. By default, a translator is created with the storage and
+extractor of the above methods.
+
+	public function get_translator(): ?\Skeleton\I18n\Translator
+
+#### detect_language
+
+Detect the language for the application. By default, a language is negotiated
+between $_SERVER['HTTP_ACCEPT_LANGUAGE'] and all available languages.
+If a language is returned, it will be stored in the session so this will only
+be triggered the first request.
+
+	public function detect_language(): \Skeleton\I18n\LanguageInterface
+
+
+### Module context
+
+#### access_denied
+
+The `access_denied` method is called whenever a module is requested which can
+not be accessed by the user. The optional `secure()` method in the module
+indicates whether the user is granted access or not.
+
+	public function access_denied(\Skeleton\Core\Web\Module $module): void
+
+#### not_found
+
+The `not_found` method is called whenever a module is requested which does not
+exist.
+
+	public function not_found(): void
+
+
+
+### Security context
+
+#### csrf_validate_enabled
+
+The `csrf_validate_enabled` method overrides the complete execution of the
+validation, which useful to exclude specific paths. An example implementation
+can be found below.
+
+    public function csrf_validate_enabled(): bool {
+        $excluded_paths = [
+            '/no/csrf/*',
+        ];
+
+        foreach ($excluded_paths as $excluded_path) {
+            if (fnmatch ($excluded_path, $_SERVER['REQUEST_URI']) === true) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+#### csrf_validate_success
+
+The `csrf_validate_success` method allows you to override the check result after
+a successful validation. It expects a boolean as a return value.
+
+	public function csrf_validate_success(): bool
+
+
+#### csrf_validation_failed
+
+The `csrf_validation_failed` method allows you to override the check result
+after a failed validation. It expects a boolean as a return value.
+
+	public function csrf_validation_failed(): bool {
+
+
+#### csrf_generate_session_token
+
+The `csrf_generate_session_token` method allows you to override the generation
+of the session token, and generate a custom value instead. It expects a string
+as a return value.
+
+	public function csrf_generate_session_token(): string
+
+
+#### csrf_inject
+
+The `csrf_inject` method allows you to override the automatic injection of the
+hidden CSRF token elements in the HTML forms of the rendered template. It
+expects a string as a return value, containing the rendered HTML to be sent back
+to the client.
+
+	public function csrf_inject($html, $post_token_name, $post_token): string
+
+
+#### csrf_validate
+
+The `csrf_validate` method allows you to override the validation process of the
+CSRF token. It expects a boolean as a return value.
+
+	public function csrf_validate($submitted_token, $session_token): bool
+
+
+#### replay_detected
+
+The `replay_detected` method allows you to catch replay detection events. For
+example, you could redirect the user to the value of the HTTP referrer header
+if it is present:
+
+    public function replay_detected() {
+        if (!empty($_SERVER['HTTP_REFERER'])) {
+            Session::redirect($_SERVER['HTTP_REFERER'], false);
+        } else {
+            Session::redirect('/');
+        }
+    }
+
+#### replay_inject
+
+The `replay_inject` method allows you to override the automatic injection of the
+hidden replay token elements in the HTML forms of the rendered template. It
+expects a string as a return value, containing the rendered HTML to be sent back
+to the client.
+
+	public function csrf_inject($html, $post_token_name, $post_token): string
+
+#### session_cookie
+
+The `session_cookie` method allows you to set session cookie parameters before
+the session is started. Typically, this would be used to SameSite cookie
+attribute.
+
+	public function session_cookie(): void
 
