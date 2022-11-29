@@ -169,8 +169,30 @@ class Web extends \Skeleton\Core\Application {
 		}
 
 		if ($module !== null) {
+			$this->call_event('module', 'bootstrap', [ $module ]);
 			$module->accept_request();
+			$this->call_event('module', 'teardown', [ $module ]);
 		}
+	}
+
+	/**
+	 * Get events
+	 *
+	 * Get a list of events for this application.
+	 * The returned array has the context as key, the value is the classname
+	 * of the default event
+	 *
+	 * @access protected
+	 * @return array $events
+	 */
+	protected function get_events(): array {
+		$parent_events = parent::get_events();
+		$web_events = [
+			'I18n' => '\\Skeleton\\Application\\Web\\Event\\I18n',
+			'Security' => '\\Skeleton\\Application\\Web\\Event\\Security',
+			'Module' => '\\Skeleton\\Application\\Web\\Event\\Module',
+		];
+		return array_merge($parent_events, $web_events);
 	}
 
 	/**

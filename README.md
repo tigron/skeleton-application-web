@@ -231,6 +231,18 @@ be triggered the first request.
 
 ### Module context
 
+#### bootstrap
+
+The `bootstrap` method is called before starting the module.
+
+    public function bootstrap(\Skeleton\Core\Web\Module $module): void
+
+#### teardown
+
+The `teardown` method is called when the module is finished.
+
+    public function bootstrap(\Skeleton\Core\Web\Module $module): void
+
 #### access_denied
 
 The `access_denied` method is called whenever a module is requested which can

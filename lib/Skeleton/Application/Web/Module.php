@@ -67,15 +67,10 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 
 			// Handle request
 			$this->handle_request();
-
-			// Call the teardown method if it exists
-			if (method_exists($this, 'teardown') === true) {
-				$this->teardown();
-			}
 		}
 
 		// Call the teardown event if it exists
-		$application->call_event('application', 'teardown', [$this]);
+		$application->call_event('module', 'teardown', [$this]);
 	}
 
 	/**
@@ -106,7 +101,7 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 			&& method_exists($this, 'display_' . $_REQUEST['action']) === true
 		) {
 			if (class_exists('\Skeleton\Template\Template') === true) {
-				$template = \Skeleton\Core\Web\Template::Get();
+				$template = \Skeleton\Application\Web\Template::Get();
 				$template->assign('action', $_REQUEST['action']);
 			}
 
