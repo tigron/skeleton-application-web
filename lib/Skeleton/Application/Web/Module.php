@@ -6,7 +6,7 @@
  * @author Christophe Gosiau <christophe@tigron.be>
  */
 
-namespace Skeleton\Core\Application\Web;
+namespace Skeleton\Application\Web;
 
 use Skeleton\Core\Application;
 
@@ -35,8 +35,8 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 		/**
 		 * Cleanup sticky session
 		 */
-		\Skeleton\Core\Web\Session\Sticky::cleanup();
-		$sticky = \Skeleton\Core\Web\Session\Sticky::Get();
+		\Skeleton\Core\Http\Session\Sticky::cleanup();
+		$sticky = \Skeleton\Core\Http\Session\Sticky::Get();
 
 		// Bootstrap the application
 		$application = \Skeleton\Core\Application::get();
@@ -44,7 +44,7 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 
 		// If we have the skeleton-template package installed, find the template and set it up
 		if (class_exists('\Skeleton\Template\Template') === true) {
-			$template = \Skeleton\Core\Web\Template::Get();
+			$template = \Skeleton\Application\Web\Template::Get();
 			$template->add_environment('module', $this);
 			$template->add_environment('sticky_session', $sticky->get_as_array());
 		}
@@ -117,7 +117,7 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 
 		// If the module has defined a template, render it
 		if ($this->template !== null && $this->template !== false) {
-			$template = \Skeleton\Core\Web\Template::Get();
+			$template = \Skeleton\Application\Web\Template::Get();
 			$template->display($this->template);
 		}
 	}

@@ -8,9 +8,9 @@
 
 namespace Skeleton\Application;
 
-use \Skeleton\Core\Web\Session;
-use \Skeleton\Core\Web\Media;
-use \Skeleton\Core\Application\Web\Module;
+use \Skeleton\Core\Http\Session;
+use \Skeleton\Core\Http\Media;
+use \Skeleton\Application\Web\Module;
 
 class Web extends \Skeleton\Core\Application {
 
@@ -70,7 +70,7 @@ class Web extends \Skeleton\Core\Application {
 			$translator = $this->call_event('i18n', 'get_translator');
 			if ($translator !== null) {
 				$translator->save();
-			}			
+			}
 		}
 	}
 
@@ -94,7 +94,7 @@ class Web extends \Skeleton\Core\Application {
 		$this->config->sticky_pager = false;
 		$this->config->base_uri = '/';
 		$this->config->route_resolver = function($path) {
-			return \Skeleton\Core\Application\Web\Module::resolve($path);
+			return \Skeleton\Application\Web\Module::resolve($path);
 		};
 
 		parent::load_config();
@@ -154,7 +154,7 @@ class Web extends \Skeleton\Core\Application {
 		/**
 		 * Validate CSRF
 		 */
-		$csrf = \Skeleton\Core\Web\Security\Csrf::get();
+		$csrf = \Skeleton\Application\Web\Security\Csrf::get();
 
 		if ($session_properties['resumed'] === true && !$csrf->validate()) {
 			$this->call_event('security', 'csrf_validation_failed');
@@ -163,7 +163,7 @@ class Web extends \Skeleton\Core\Application {
 		/**
 		 * Check for replays
 		 */
-		$replay = \Skeleton\Core\Web\Security\Replay::get();
+		$replay = \Skeleton\Application\Web\Security\Replay::get();
 		if ($replay->check() == false) {
 			$this->call_event('security', 'replay_detected');
 		}
