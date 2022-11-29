@@ -47,7 +47,7 @@ below:
 
 ### routes
 
-An array which maps `routes` to `modules`. A route definition cab be used to
+An array which maps `routes` to `modules`. A route definition can be used to
 generate pretty URL's, or even translated versions. Usage is best described by
 an example.
 
@@ -59,7 +59,7 @@ an example.
             '$language[en]/test/routing/engine',
             '$language[en]/test/routing/engine/$action',
             '$language[en]/test/routing/engine/$action/$id',
-            ],
+        ],
     ],
 
 #### Usage
