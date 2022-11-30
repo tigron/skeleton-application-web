@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "tigron/skeleton-template-twig": ">=2"
+        "tigron/skeleton-core": ">=4"
     },
     "suggest": {
         "tigron/skeleton-template": "*"
