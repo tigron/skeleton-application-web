@@ -18,7 +18,7 @@ class I18n extends \Skeleton\Core\Application\Event {
 	 * @return \Skeleton\I18n\Translator\Extractor $extractor
 	 */
 	public function get_translator_extractor(): \Skeleton\I18n\Translator\Extractor {
-		// Twig templates are the default for a skeleton app	
+		// Twig templates are the default for a skeleton app
 		if (!file_exists($this->application->template_path)) {
 			throw new \Exception('Cannot get translator_extractor, template path does not exist');
 		}
@@ -38,7 +38,7 @@ class I18n extends \Skeleton\Core\Application\Event {
 		if (!isset($default_configuration['storage_path'])) {
 			throw new \Exception('No po storage path defined, cannot setup translation');
 		}
-	
+
 		$translator_storage_po = new \Skeleton\I18n\Translator\Storage\Po();
 		return $translator_storage_po;
 	}
@@ -52,7 +52,7 @@ class I18n extends \Skeleton\Core\Application\Event {
 	public function get_translator(): ?\Skeleton\I18n\Translator {
 		try {
 			$translator_storage = $this->application->call_event('i18n', 'get_translator_storage');
-			$translator_extractor = $this->application->call_event('i18n', 'get_translator_extractor');		
+			$translator_extractor = $this->application->call_event('i18n', 'get_translator_extractor');
 		} catch (\Exception $e) {
 			return null;
 		}
@@ -60,7 +60,7 @@ class I18n extends \Skeleton\Core\Application\Event {
 		$translator->set_translator_storage($translator_storage);
 		$translator->set_translator_extractor($translator_extractor);
 		return $translator;
-	}	
+	}
 
 	/**
 	 * Detect the language
@@ -71,8 +71,21 @@ class I18n extends \Skeleton\Core\Application\Event {
 	public function detect_language(): \Skeleton\I18n\LanguageInterface {
 		$language_interface = \Skeleton\I18n\Config::$language_interface;
 
+		// Check for requested language in $_GET
+		if (isset($_GET['language'])) {
+			try {
+				$language = $language_interface::get_by_name_short($_GET['language']);
+				return $language;
+			} catch (\Exception $e) {	}
+		}
+
+		// Check if a language is stored in session
+		if (isset($_SESSION['language'])) {
+			return $_SESSION['language'];
+		}
+
+		// Negotiate a language based on HTTP_ACEPT_LANGUAGE
 		try {
-			// Language detection base on HTTP_ACCEPT_LANGUAGE
 			$languages = $language_interface::get_all();
 			$all_languages = [];
 			$available_languages = [];
@@ -90,6 +103,6 @@ class I18n extends \Skeleton\Core\Application\Event {
 			$language = $language_interface::get_by_name_short($this->application->config->default_language);
 		}
 		return $language;
-	}	
+	}
 
 }

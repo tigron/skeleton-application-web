@@ -221,10 +221,13 @@ extractor of the above methods.
 
 #### detect_language
 
-Detect the language for the application. By default, a language is negotiated
-between $_SERVER['HTTP_ACCEPT_LANGUAGE'] and all available languages.
-If a language is returned, it will be stored in the session so this will only
-be triggered the first request.
+Detect the language for the application. This is done in 3 steps:
+  1) Is a language requested via $_GET['language']
+  2) Is a language stored in $_SESSION['language']
+  3) Negotiate a language between $_SERVER['HTTP_ACCEPT_LANGUAGE'] and all
+  available languages.
+
+The returned language will be stored in session.
 
 	public function detect_language(): \Skeleton\I18n\LanguageInterface
 

@@ -79,6 +79,16 @@ class Template {
 	}
 
 	/**
+	 * Set translation
+	 *
+	 * @access public
+	 * @param Translation $translation
+	 */
+	public function set_translation(\Skeleton\I18n\Translation $translation) {
+		$this->template->set_translation($translation);
+	}
+
+	/**
 	 * Add template directory
 	 *
 	 * @access public

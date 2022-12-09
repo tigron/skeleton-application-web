@@ -110,12 +110,15 @@ class Web extends \Skeleton\Core\Application {
 		 * Handle the media
 		 */
 		$is_media = false;
+
 		if (isset($this->config->detect_media) AND $this->config->detect_media === true OR !isset($this->config->detect_media)) {
+
 			try {
 				$is_media = Media::detect($this->request_relative_uri);
 			} catch (\Skeleton\Core\Exception\Media\Not\Found $e) {
 				\Skeleton\Core\Web\HTTP\Status::code_404('media');
 			}
+
 		}
 
 		if ($is_media === true) {
@@ -149,7 +152,7 @@ class Web extends \Skeleton\Core\Application {
 		/**
 		 * Set language
 		 */
-		$this->handle_i18n();
+		$this->detect_language();
 
 		/**
 		 * Validate CSRF
@@ -200,7 +203,7 @@ class Web extends \Skeleton\Core\Application {
 	 *
 	 * @access private
 	 */
-	private function handle_i18n() {
+	private function detect_language() {
 		if (!class_exists('\Skeleton\I18n\Config')) {
 			/**
 			 * Skeleton-i18n is not installed, nothing to do
@@ -224,19 +227,19 @@ class Web extends \Skeleton\Core\Application {
 		/**
 		 * Try to set the language
 		 */
-		if (!isset($_SESSION['language'])) {
-			$_SESSION['language'] = $this->call_event('i18n', 'detect_language');
-		}
+		$_SESSION['language'] = $this->call_event('i18n', 'detect_language');
 
-		if (isset($_GET['language'])) {
-			try {
-				$language = $language_interface::get_by_name_short($_GET['language']);
-				$_SESSION['language'] = $language;
-			} catch (\Exception $e) {
-				$_SESSION['language'] = $language_interface::get_by_name_short($this->config->default_language);
+		$this->language = $_SESSION['language'];
+
+
+		if (class_exists('\Skeleton\I18n\Translator')) {
+			$translator = $this->call_event('i18n', 'get_translator');
+			if ($translator !== null) {
+				$template = \Skeleton\Application\Web\Template::get();
+				$translation = $translator->get_translation($this->language);
+				$template->set_translation($translation);
 			}
 		}
-		$this->language = $_SESSION['language'];
 	}
 
 	/**
