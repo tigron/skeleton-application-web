@@ -116,7 +116,7 @@ class Web extends \Skeleton\Core\Application {
 			try {
 				$is_media = Media::detect($this->request_relative_uri);
 			} catch (\Skeleton\Core\Exception\Media\Not\Found $e) {
-				\Skeleton\Core\Web\HTTP\Status::code_404('media');
+				\Skeleton\Core\Http\Status::code_404('media');
 			}
 
 		}
