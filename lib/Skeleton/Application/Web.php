@@ -132,6 +132,11 @@ class Web extends \Skeleton\Core\Application {
 		Session::start($session_properties);
 
 		/**
+		 * Set language
+		 */
+		$this->detect_language();		
+		
+		/**
 		 * Find the module to load
 		 *
 		 * FIXME: this nested try/catch is not the prettiest of things
@@ -148,11 +153,6 @@ class Web extends \Skeleton\Core\Application {
 				$this->call_event('module', 'not_found');
 			}
 		}
-
-		/**
-		 * Set language
-		 */
-		$this->detect_language();
 
 		/**
 		 * Validate CSRF
