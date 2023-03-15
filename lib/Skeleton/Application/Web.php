@@ -132,11 +132,6 @@ class Web extends \Skeleton\Core\Application {
 		Session::start($session_properties);
 
 		/**
-		 * Set language
-		 */
-		$this->detect_language();		
-		
-		/**
 		 * Find the module to load
 		 *
 		 * FIXME: this nested try/catch is not the prettiest of things
@@ -150,8 +145,16 @@ class Web extends \Skeleton\Core\Application {
 				// Attempt to find a module by matching paths
 				$module = Module::resolve($this->request_relative_uri);
 			} catch (\Exception $e) {
+				$this->detect_language();
 				$this->call_event('module', 'not_found');
 			}
+		}
+
+		/**
+		 * Set language
+		 */
+		if ($this->language === null) {
+			$this->detect_language();
 		}
 
 		/**
@@ -230,7 +233,6 @@ class Web extends \Skeleton\Core\Application {
 		$_SESSION['language'] = $this->call_event('i18n', 'detect_language');
 
 		$this->language = $_SESSION['language'];
-
 
 		if (class_exists('\Skeleton\I18n\Translator')) {
 			$translator = $this->call_event('i18n', 'get_translator');
