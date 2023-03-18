@@ -93,7 +93,7 @@ class Security extends \Skeleton\Core\Application\Event {
 	public function csrf_inject($html, $post_token_name, $post_token): string {
 		$html = preg_replace_callback(
 			'/<form\s.*>/siU',
-			function ($matches) {
+			function ($matches) use ($post_token_name, $post_token) {
 				return sprintf("%s\n<input name=\"%s\" type=\"hidden\" value=\"%s\" />\n", $matches[0], $post_token_name, $post_token);
 			},
 			$html
@@ -117,8 +117,8 @@ class Security extends \Skeleton\Core\Application\Event {
 	public function replay_inject($html, $post_token_name, $post_token): string {
 		$html = preg_replace_callback(
 			'/<form\s.*>/iU',
-			function ($matches) {
-				return sprintf("%s\n<input name=\"%s\" type=\"hidden\" value=\"%s\" />\n", $matches[0], $this->post_token_name, bin2hex(random_bytes(25)));
+			function ($matches) use ($post_token_name, $post_token) {
+				return sprintf("%s\n<input name=\"%s\" type=\"hidden\" value=\"%s\" />\n", $matches[0], $post_token_name, $post_token);
 			},
 			$html
 		);
@@ -155,7 +155,4 @@ class Security extends \Skeleton\Core\Application\Event {
 	public function session_cookie(): void {
 		// No default action
 	}
-
-
-
 }
