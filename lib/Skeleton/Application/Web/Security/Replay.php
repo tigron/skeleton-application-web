@@ -131,7 +131,7 @@ class Replay {
 
 		$application = \Skeleton\Core\Application::get();
 
-		$html = $application->call_event('security', 'replay_inject', [$html, $this->post_token_name, bin2hex(random_bytes(25))]);
+		$html = $application->call_event('security', 'replay_inject', [$html, $this->get_post_token_name(), bin2hex(random_bytes(25))]);
 		return $html;
 	}
 
