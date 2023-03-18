@@ -164,7 +164,7 @@ class Csrf {
 		}
 
 		$application = \Skeleton\Core\Application::get();
-		$html = $application->call_event('security', 'csrf_inject', [$html]);
+		$html = $application->call_event('security', 'csrf_inject', [$html, $this->get_post_token_name(), $this->get_session_token()]);
 		return $html;
 	}
 
