@@ -163,7 +163,7 @@ class Web extends \Skeleton\Core\Application {
 		$csrf = \Skeleton\Application\Web\Security\Csrf::get();
 
 		if ($session_properties['resumed'] === true && !$csrf->validate()) {
-			$this->call_event('security', 'csrf_validation_failed');
+			$this->call_event('security', 'csrf_validate_failed');
 		}
 
 		/**
