@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Security Context
  *
@@ -10,7 +13,6 @@
 namespace Skeleton\Application\Web\Event;
 
 class Security extends \Skeleton\Core\Application\Event {
-
 	/**
 	 * Generate session token
 	 *
@@ -35,22 +37,19 @@ class Security extends \Skeleton\Core\Application\Event {
 	 * Validate CSRF
 	 *
 	 * @access public
-	 * @param string $submitted_token
-	 * @param string $session_token
 	 * @return bool $validated
 	 */
-	public function csrf_validate($submitted_token, $session_token): bool {
+	public function csrf_validate(string $submitted_token, string $session_token): bool {
 		// We only validate POST requests
 		// This is probably not the most complete implementation, but let's agree that GET requests should never modify data and we're mostly covered
 		if (getenv('REQUEST_METHOD') === 'POST') {
 			if (empty($submitted_token) || $session_token !== $submitted_token) {
 				return $this->application->call_event('security', 'csrf_validate_failed');
-			} else {
-				return $this->application->call_event('security', 'csrf_validate_success');
 			}
-		} else {
-			return true;
+
+			return $this->application->call_event('security', 'csrf_validate_success');
 		}
+		return true;
 	}
 
 	/**
@@ -86,20 +85,19 @@ class Security extends \Skeleton\Core\Application\Event {
 	 * template.
 	 *
 	 * @access public
-	 * @param string $html
-	 * @param string $post_token_name
-	 * @param string $post_token
 	 * @return string $html
 	 */
-	public function csrf_inject($html, $post_token_name, $post_token): string {
-		$html = preg_replace_callback(
+	public function csrf_inject(string $html, string $post_token_name, string $post_token): string {
+		return preg_replace_callback(
 			'/<form\s.*>/siU',
-			function ($matches) use ($post_token_name, $post_token) {
-				return sprintf("%s\n<input name=\"%s\" type=\"hidden\" value=\"%s\" />\n", $matches[0], $post_token_name, $post_token);
+			static function($matches) use ($post_token_name, $post_token) {
+				return sprintf(
+					"%s\n<input name=\"%s\" type=\"hidden\" value=\"%s\" />\n",
+					$matches[0], $post_token_name, $post_token
+				);
 			},
 			$html
 		);
-		return $html;
 	}
 
 	/**
@@ -110,20 +108,19 @@ class Security extends \Skeleton\Core\Application\Event {
 	 * template.
 	 *
 	 * @access public
-	 * @param string $html
-	 * @param string $post_token_name
-	 * @param string $post_token
 	 * @return string $html
 	 */
-	public function replay_inject($html, $post_token_name, $post_token): string {
-		$html = preg_replace_callback(
+	public function replay_inject(string $html, string $post_token_name, string $post_token): string {
+		return preg_replace_callback(
 			'/<form\s.*>/iU',
-			function ($matches) use ($post_token_name, $post_token) {
-				return sprintf("%s\n<input name=\"%s\" type=\"hidden\" value=\"%s\" />\n", $matches[0], $post_token_name, $post_token);
+			static function($matches) use ($post_token_name, $post_token) {
+				return sprintf(
+					"%s\n<input name=\"%s\" type=\"hidden\" value=\"%s\" />\n",
+					$matches[0], $post_token_name, $post_token
+				);
 			},
 			$html
 		);
-		return $html;
 	}
 
 	/**
@@ -135,11 +132,11 @@ class Security extends \Skeleton\Core\Application\Event {
 	 *
 	 * @access public
 	 */
-	public function replay_detected() {
+	public function replay_detected(): void {
 		if (!empty($_SERVER['HTTP_REFERER'])) {
-		    Session::redirect($_SERVER['HTTP_REFERER'], false);
+			Session::redirect($_SERVER['HTTP_REFERER'], false);
 		} else {
-		    Session::redirect('/');
+			Session::redirect('/');
 		}
 	}
 
@@ -151,7 +148,6 @@ class Security extends \Skeleton\Core\Application\Event {
 	 * cookie attribute.
 	 *
 	 * @access public
-	 * @return void
 	 */
 	public function session_cookie(): void {
 		// No default action

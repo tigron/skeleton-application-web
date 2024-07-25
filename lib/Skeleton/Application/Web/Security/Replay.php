@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Automated replay handling
  *
@@ -11,42 +14,37 @@ class Replay {
 	/**
 	 * Local replay instance
 	 *
-	 * @var self $replay
 	 * @access private
 	 */
-	private static $replay = null;
+	private static ?self $replay = null;
 
 	/**
 	 * Session tokens name
 	 *
-	 * @var string $session_tokens_name
 	 * @access private
 	 */
-	private $session_tokens_name = '__replay-tokens';
+	private string $session_tokens_name = '__replay-tokens';
 
 	/**
 	 * POST token name
 	 *
-	 * @var string $post_token_name
 	 * @access private
 	 */
-	private $post_token_name = '__replay-token';
+	private string $post_token_name = '__replay-token';
 
 	/**
 	 * Header token name
 	 *
-	 * @var string $header_token_name
 	 * @access private
 	 */
-	private $header_token_name = 'x-replay-token';
+	private string $header_token_name = 'x-replay-token';
 
 	/**
 	 * Is replay enabled for the current request
 	 *
-	 * @var boolean $enabled
 	 * @access private
 	 */
-	private $enabled = true;
+	private bool $enabled = true;
 
 	/**
 	 * Constructor
@@ -94,7 +92,7 @@ class Replay {
 	 * @access public
 	 * @return ?string $replay_session_token_name
 	 */
-	public function get_session_tokens_name() {
+	public function get_session_tokens_name(): ?string {
 		return $this->session_tokens_name;
 	}
 
@@ -104,7 +102,7 @@ class Replay {
 	 * @access public
 	 * @return ?string $replay_header_token_name
 	 */
-	public function get_header_token_name() {
+	public function get_header_token_name(): ?string {
 		return $this->header_token_name;
 	}
 
@@ -114,14 +112,13 @@ class Replay {
 	 * @access public
 	 * @return ?string $replay_post_token_name
 	 */
-	public function get_post_token_name() {
+	public function get_post_token_name(): ?string {
 		return $this->post_token_name;
 	}
 
 	/**
 	 * Inject a replay token form element into rendered HTML
 	 *
-	 * @param string $html
 	 * @access public
 	 */
 	public function inject(string $html): string {
@@ -131,8 +128,11 @@ class Replay {
 
 		$application = \Skeleton\Core\Application::get();
 
-		$html = $application->call_event('security', 'replay_inject', [$html, $this->get_post_token_name(), bin2hex(random_bytes(25))]);
-		return $html;
+		return $application->call_event('security', 'replay_inject', [
+			$html,
+			$this->get_post_token_name(),
+			bin2hex(random_bytes(25)),
+		]);
 	}
 
 	/**
@@ -140,9 +140,7 @@ class Replay {
 	 *
 	 * @access public
 	 */
-	public function check() {
-		$application = \Skeleton\Core\Application::get();
-
+	public function check(): bool {
 		// If replay checking is not enabled, don't do anything
 		if ($this->enabled === false) {
 			return true;
@@ -161,7 +159,10 @@ class Replay {
 		unset($_POST[$this->post_token_name]);
 
 		if (!empty($_POST)) {
-			if (!isset($_SESSION[$this->get_session_tokens_name()]) || !is_array($_SESSION[$this->get_session_tokens_name()])) {
+			if (
+				!isset($_SESSION[$this->get_session_tokens_name()]) ||
+				!is_array($_SESSION[$this->get_session_tokens_name()])
+			) {
 				// Initialise the token array if we don't have one yet
 				$_SESSION[$this->get_session_tokens_name()] = [];
 			} else {
@@ -183,10 +184,9 @@ class Replay {
 			if (!empty($submitted_token)) {
 				if (in_array($submitted_token, $_SESSION[$this->get_session_tokens_name()])) {
 					return false;
-				} else {
-					$_SESSION[$this->get_session_tokens_name()][uniqid(time() . '_')] = $submitted_token;
-					return true;
 				}
+				$_SESSION[$this->get_session_tokens_name()][uniqid(time() . '_')] = $submitted_token;
+				return true;
 			}
 		}
 
