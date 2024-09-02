@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * I18n Context
  *
@@ -10,7 +13,6 @@
 namespace Skeleton\Application\Web\Event;
 
 class I18n extends \Skeleton\Core\Application\Event {
-
 	/**
 	 * Get the translator extractor for this app
 	 *
@@ -22,6 +24,7 @@ class I18n extends \Skeleton\Core\Application\Event {
 		if (!file_exists($this->application->template_path)) {
 			throw new \Exception('Cannot get translator_extractor, template path does not exist');
 		}
+
 		$translator_extractor_twig = new \Skeleton\I18n\Translator\Extractor\Twig();
 		$translator_extractor_twig->set_template_path($this->application->template_path);
 		return $translator_extractor_twig;
@@ -35,12 +38,12 @@ class I18n extends \Skeleton\Core\Application\Event {
 	 */
 	public function get_translator_storage(): \Skeleton\I18n\Translator\Storage {
 		$default_configuration = \Skeleton\I18n\Translator\Storage\Po::get_default_configuration();
+
 		if (!isset($default_configuration['storage_path'])) {
 			throw new \Exception('No po storage path defined, cannot setup translation');
 		}
 
-		$translator_storage_po = new \Skeleton\I18n\Translator\Storage\Po();
-		return $translator_storage_po;
+		return new \Skeleton\I18n\Translator\Storage\Po();
 	}
 
 	/**
@@ -56,6 +59,7 @@ class I18n extends \Skeleton\Core\Application\Event {
 		} catch (\Exception $e) {
 			return null;
 		}
+
 		$translator = new \Skeleton\I18n\Translator($this->application->name);
 		$translator->set_translator_storage($translator_storage);
 		$translator->set_translator_extractor($translator_extractor);
@@ -74,9 +78,9 @@ class I18n extends \Skeleton\Core\Application\Event {
 		// Check for requested language in $_GET
 		if (isset($_GET['language'])) {
 			try {
-				$language = $language_interface::get_by_name_short($_GET['language']);
-				return $language;
-			} catch (\Exception $e) {	}
+				return $language_interface::get_by_name_short($_GET['language']);
+			} catch (\Exception $e) {
+			}
 		}
 
 		// Check if a language is stored in session
@@ -89,20 +93,25 @@ class I18n extends \Skeleton\Core\Application\Event {
 			$languages = $language_interface::get_all();
 			$all_languages = [];
 			$available_languages = [];
+
 			foreach ($languages as $language) {
 				$available_languages[] = $language->name_short;
 				$all_languages[$language->name_short] = $language;
 			}
 
-			$matching_language = \Skeleton\I18n\Util::get_best_matching_language($_SERVER['HTTP_ACCEPT_LANGUAGE'], $available_languages);
+			$matching_language = \Skeleton\I18n\Util::get_best_matching_language(
+				$_SERVER['HTTP_ACCEPT_LANGUAGE'], $available_languages
+			);
+
 			if ($matching_language === false) {
 				throw new \Exception('No matching language found');
 			}
+
 			$language = $all_languages[$matching_language];
 		} catch (\Exception $e) {
 			$language = $language_interface::get_by_name_short($this->application->config->default_language);
 		}
+
 		return $language;
 	}
-
 }
