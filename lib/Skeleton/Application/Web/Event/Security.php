@@ -9,6 +9,8 @@
 
 namespace Skeleton\Application\Web\Event;
 
+use \Skeleton\Core\Http\Session;
+
 class Security extends \Skeleton\Core\Application\Event {
 
 	/**
