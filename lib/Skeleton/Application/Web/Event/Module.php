@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 /**
  * Module Context
  *
@@ -13,15 +10,7 @@ declare(strict_types=1);
 namespace Skeleton\Application\Web\Event;
 
 class Module extends \Skeleton\Core\Application\Event {
-	/**
-	 * Teardown
-	 *
-	 * @access public
-	 * @param \Skeleton\Application\Web\Module
-	 */
-	public function teardown(\Skeleton\Application\Web\Module $module): void {
-		// No default action
-	}
+
 	/**
 	 * Bootstrap
 	 *
@@ -29,6 +18,16 @@ class Module extends \Skeleton\Core\Application\Event {
 	 * @param \Skeleton\Application\Web\Module
 	 */
 	public function bootstrap(\Skeleton\Application\Web\Module $module): void {
+		// No default action
+	}
+
+	/**
+	 * Teardown
+	 *
+	 * @access public
+	 * @param \Skeleton\Application\Web\Module
+	 */
+	public function teardown(\Skeleton\Application\Web\Module $module): void {
 		// No default action
 	}
 
@@ -50,4 +49,5 @@ class Module extends \Skeleton\Core\Application\Event {
 	public function not_found(): void {
 		\Skeleton\Core\Http\Status::code_404('module');
 	}
+
 }

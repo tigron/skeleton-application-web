@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 /**
  * Module management class
  *
@@ -14,26 +11,27 @@ namespace Skeleton\Application\Web;
 use Skeleton\Core\Application;
 
 abstract class Module extends \Skeleton\Core\Application\Module {
+
 	/**
 	 * Login required
 	 *
 	 * @var $login_required
 	 */
-	protected bool $login_required = true;
+	protected $login_required = true;
 
 	/**
 	 * Template
 	 *
 	 * @var $template
 	 */
-	protected ?string $template = null;
+	protected $template = null;
 
 	/**
 	 * Accept the request
 	 *
 	 * @access public
 	 */
-	public function accept_request(): void {
+	public function accept_request() {
 		/**
 		 * Cleanup sticky session
 		 */
@@ -61,6 +59,7 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 		if ($allowed === false) {
 			$application->call_event('module', 'access_denied', [$this]);
 		} else {
+
 			// Call the bootstrap method if it exists
 			if (method_exists($this, 'bootstrap') === true) {
 				$this->bootstrap();
@@ -80,7 +79,7 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 	 * @access public
 	 * @return string $path
 	 */
-	public function get_module_path(): string {
+	public function get_module_path() {
 		$reflection = new \ReflectionClass($this);
 		$application = Application::Get();
 		$path = '/' . str_replace($application->module_path, '', $reflection->getFileName());
@@ -94,7 +93,7 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 	 *
 	 * @access public
 	 */
-	public function handle_request(): void {
+	public function handle_request() {
 		// Find out which method to call, fall back to calling display()
 		if (
 			isset($_REQUEST['action']) === true
@@ -123,7 +122,7 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 	 *
 	 * @access public
 	 */
-	public function is_login_required(): bool {
+	public function is_login_required() {
 		return $this->login_required;
 	}
 
@@ -132,7 +131,7 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 	 *
 	 * @access public
 	 */
-	public function get_name(): string {
+	public function get_name() {
 		$application = Application::get();
 		$module_namespace = $application->module_namespace;
 
@@ -146,7 +145,7 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 	 *
 	 * @access public
 	 */
-	abstract public function display(): void;
+	public abstract function display();
 
 	/**
 	 * Get the requested module
@@ -156,17 +155,15 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 	 * @return Web_Module Requested module
 	 * @throws Exception
 	 */
-	public static function resolve(string $request_relative_uri): Module {
+	public static function resolve($request_relative_uri) {
 		$relative_uri_parts = array_values(array_filter(explode('/', $request_relative_uri)));
 		$relative_uri_parts = array_map('ucfirst', $relative_uri_parts);
 		$application = \Skeleton\Core\Application::get();
-
 		$module_namespace = $application->module_namespace;
-		$base_namespace = $module_namespace . implode('\\', $relative_uri_parts);
 
 		$classnames = [];
-		$classnames[] = $base_namespace;
-		$classnames[] = $base_namespace . '\\' . ucfirst($application->config->module_default);
+		$classnames[] = $module_namespace . implode('\\', $relative_uri_parts);
+		$classnames[] = $module_namespace . implode('\\', $relative_uri_parts) . "\\" . ucfirst($application->config->module_default);
 
 		foreach ($classnames as $classname) {
 			$classname = str_replace('\\\\', '\\', $classname);
@@ -174,9 +171,10 @@ abstract class Module extends \Skeleton\Core\Application\Module {
 				continue;
 			}
 
-			return new $classname();
+			return new $classname;
 		}
 
 		throw new \Exception('Module not found');
 	}
+
 }

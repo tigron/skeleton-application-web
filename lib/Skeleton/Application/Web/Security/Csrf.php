@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 /**
  * Automated CSRF handling
  *
@@ -14,44 +11,50 @@ class Csrf {
 	/**
 	 * Local Csrf instance
 	 *
+	 * @var self $csrf
 	 * @access private
 	 */
-	private static ?self $csrf = null;
+	private static $csrf = null;
 
 	/**
 	 * Session token name
 	 *
+	 * @var string $session_token_name
 	 * @access private
 	 */
-	private string $session_token_name = '__request-token';
+	private $session_token_name = '__request-token';
 
 	/**
 	 * POST token name
 	 *
+	 * @var string $post_token_name
 	 * @access private
 	 */
-	private string $post_token_name = '__request-token';
+	private $post_token_name = '__request-token';
 
 	/**
 	 * Header token name
 	 *
+	 * @var string $header_token_name
 	 * @access private
 	 */
-	private string $header_token_name = 'x-request-token';
+	private $header_token_name = 'x-request-token';
 
 	/**
 	 * Session token
 	 *
+	 * @var string $session_token
 	 * @access private
 	 */
-	private ?string $session_token = null;
+	private $session_token = null;
 
 	/**
 	 * Is CSRF enabled for the current request
 	 *
+	 * @var boolean $enabled
 	 * @access private
 	 */
-	private bool $enabled = true;
+	private $enabled = true;
 
 	/**
 	 * Constructor
@@ -73,7 +76,7 @@ class Csrf {
 			$this->post_token_name = $application->config->csrf_post_token_name;
 		}
 
-		if (isset($application->config->csrf_enabled) and $application->config->csrf_enabled) {
+		if (isset($application->config->csrf_enabled) and $application->config->csrf_enabled)  {
 			$this->set_session_token();
 		} else {
 			$this->enabled = false;
@@ -95,12 +98,27 @@ class Csrf {
 	}
 
 	/**
+	 * Generate a secure CSRF token or set the existing one if we have one
+	 *
+	 * @access public
+	 */
+	private function set_session_token() {
+		if (!isset($_SESSION[$this->session_token_name])) {
+			$application = \Skeleton\Core\Application::get();
+			$this->session_token = $application->call_event('security', 'csrf_generate_session_token');
+			$_SESSION[$this->session_token_name] = $this->session_token;
+		} else {
+			$this->session_token = $_SESSION[$this->session_token_name];
+		}
+	}
+
+	/**
 	 * Get the current CSRF session token name
 	 *
 	 * @access public
 	 * @return ?string $csrf_session_token_name
 	 */
-	public function get_session_token_name(): ?string {
+	public function get_session_token_name() {
 		return $this->session_token_name;
 	}
 
@@ -110,7 +128,7 @@ class Csrf {
 	 * @access public
 	 * @return ?string $csrf_header_token_name
 	 */
-	public function get_header_token_name(): ?string {
+	public function get_header_token_name() {
 		return $this->header_token_name;
 	}
 
@@ -120,7 +138,7 @@ class Csrf {
 	 * @access public
 	 * @return ?string $csrf_post_token_name
 	 */
-	public function get_post_token_name(): ?string {
+	public function get_post_token_name() {
 		return $this->post_token_name;
 	}
 
@@ -130,26 +148,24 @@ class Csrf {
 	 * @access public
 	 * @return ?string $csrf_token
 	 */
-	public function get_session_token(): ?string {
+	public function get_session_token() {
 		return $this->session_token;
 	}
 
 	/**
 	 * Inject a CSRF token form element into rendered HTML
 	 *
+	 * @param string $html
 	 * @access public
 	 */
 	public function inject(string $html): string {
-		if ($this->enabled === false) {
+		if ($this->enabled == false) {
 			return $html;
 		}
 
 		$application = \Skeleton\Core\Application::get();
-		return $application->call_event('security', 'csrf_inject', [
-			$html,
-			$this->get_post_token_name(),
-			$this->get_session_token(),
-		]);
+		$html = $application->call_event('security', 'csrf_inject', [$html, $this->get_post_token_name(), $this->get_session_token()]);
+		return $html;
 	}
 
 	/**
@@ -157,7 +173,7 @@ class Csrf {
 	 *
 	 * @access public
 	 */
-	public function validate(): bool {
+	public function validate() {
 		$application = \Skeleton\Core\Application::get();
 
 		// Allow the application to override running the validation process completely
@@ -178,35 +194,13 @@ class Csrf {
 		}
 
 		if ($this->enabled) {
-			return $application->call_event(
-				'security',
-				'csrf_validate',
-				[
-					$submitted_token,
-					$this->get_session_token(),
-				]
-			);
+			return $application->call_event('security', 'csrf_validate', [ $submitted_token, $this->get_session_token() ]);
 		}
 
 		unset($_POST[$this->post_token_name]);
 
-		if ($this->enabled === false) {
+		if ($this->enabled == false) {
 			return true;
-		}
-	}
-
-	/**
-	 * Generate a secure CSRF token or set the existing one if we have one
-	 *
-	 * @access public
-	 */
-	private function set_session_token(): void {
-		if (!isset($_SESSION[$this->session_token_name])) {
-			$application = \Skeleton\Core\Application::get();
-			$this->session_token = $application->call_event('security', 'csrf_generate_session_token');
-			$_SESSION[$this->session_token_name] = $this->session_token;
-		} else {
-			$this->session_token = $_SESSION[$this->session_token_name];
 		}
 	}
 }

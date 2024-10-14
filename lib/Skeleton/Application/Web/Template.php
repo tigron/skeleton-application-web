@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 /**
  * Singleton, you can get an instance with Web_Template::Get()
  *
@@ -15,24 +12,29 @@ declare(strict_types=1);
 namespace Skeleton\Application\Web;
 
 class Template {
+
 	/**
 	 * Unique
+	 *
+	 * @var int $unique
 	 */
-	private int $unique = 0;
+	private $unique = 0;
 
 	/**
 	 * Template
 	 *
 	 * @access private
+	 * @var Template $template
 	 */
-	private ?\Skeleton\Template\Template $template = null;
+	private $template = null;
 
 	/**
 	 * Template
 	 *
+	 * @var Web_Template $template
 	 * @access private
 	 */
-	private static ?self $web_template = null;
+	private static $web_template = null;
 
 	/**
 	 * Constructor
@@ -58,8 +60,10 @@ class Template {
 	 * Assign a variable to the template
 	 *
 	 * @access public
+	 * @param string $key
+	 * @param mixed $value
 	 */
-	public function assign(string $key, mixed $value): void {
+	public function assign($key, $value) {
 		$this->template->assign($key, $value);
 	}
 
@@ -67,8 +71,10 @@ class Template {
 	 * Add a variable to the environment
 	 *
 	 * @access public
+	 * @param string $key
+	 * @param mixed $value
 	 */
-	public function add_environment(string $key, mixed $value): void {
+	public function add_environment($key, $value) {
 		$this->template->add_environment($key, $value);
 	}
 
@@ -78,7 +84,7 @@ class Template {
 	 * @access public
 	 * @param Translation $translation
 	 */
-	public function set_translation(\Skeleton\I18n\Translation $translation): void {
+	public function set_translation(\Skeleton\I18n\Translation $translation) {
 		$this->template->set_translation($translation);
 	}
 
@@ -86,8 +92,11 @@ class Template {
 	 * Add template directory
 	 *
 	 * @access public
+	 * @param string $path
+	 * @param string $namespace
+	 * @param bool $prepend
 	 */
-	public function add_template_directory(string $path, ?string $namespace = null, bool $prepend = false): void {
+	public function add_template_directory($path, $namespace = null, $prepend = false) {
 		/**
 		 * @Deprecated: for backwards compatibility
 		 */
@@ -98,8 +107,11 @@ class Template {
 	 * Add template directory
 	 *
 	 * @access public
+	 * @param string $path
+	 * @param string $namespace
+	 * @param bool $prepend
 	 */
-	public function add_template_path(string $path, ?string $namespace = null, bool $prepend = false): void {
+	public function add_template_path($path, $namespace = null, $prepend = false) {
 		$this->template->add_template_path($path, $namespace, $prepend);
 	}
 
@@ -107,8 +119,10 @@ class Template {
 	 * Display a template
 	 *
 	 * @access public
+	 * @param string $template
+	 * @param bool $rewrite_html
 	 */
-	public function display(string $template, bool $rewrite_html = true): void {
+	public function display($template, $rewrite_html = true) {
 		echo $this->render($template, $rewrite_html);
 	}
 
@@ -116,9 +130,11 @@ class Template {
 	 * Render a template
 	 *
 	 * @access public
+	 * @param string $template
+	 * @param bool $rewrite_html
 	 * @return string $rendered_template
 	 */
-	public function render(string $template, bool $rewrite_html = true): string {
+	public function render($template, $rewrite_html = true) {
 		$csrf = Security\Csrf::get();
 		$this->add_environment('csrf_session_token_name', $csrf->get_session_token_name());
 		$this->add_environment('csrf_header_token_name', $csrf->get_header_token_name());
@@ -136,16 +152,17 @@ class Template {
 
 		if ($rewrite_html) {
 			return \Skeleton\Core\Util::rewrite_reverse_html($output);
+		} else {
+			return $output;
 		}
-		return $output;
 	}
 
 	/**
 	 * Get function, returns Template object
 	 */
-	public static function get(): self {
+	public static function get() {
 		if (self::$web_template === null) {
-			self::$web_template = new self();
+			self::$web_template = new Template();
 		}
 
 		return self::$web_template;
