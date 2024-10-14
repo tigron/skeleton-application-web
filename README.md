@@ -293,12 +293,12 @@ a successful validation. It expects a boolean as a return value.
 	public function csrf_validate_success(): bool
 
 
-#### csrf_validate_failed
+#### csrf_validation_failed
 
-The `csrf_validate_failed` method allows you to override the check result
+The `csrf_validation_failed` method allows you to override the check result
 after a failed validation. It expects a boolean as a return value.
 
-	public function csrf_validate_failed(): bool
+	public function csrf_validation_failed(): bool {
 
 
 #### csrf_generate_session_token

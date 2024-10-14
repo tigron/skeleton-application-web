@@ -53,16 +53,15 @@ class Security extends \Skeleton\Core\Application\Event {
 	}
 
 	/**
-	 * csrf_validate_failed
+	 * csrf_validation_failed
 	 *
-	 * The csrf_validate_failed method allows you to override the check
+	 * The csrf_validation_failed method allows you to override the check
 	 * result after a failed validation. It expects a boolean as a return value.
 	 *
 	 * @return bool $validated
 	 */
-	public function csrf_validate_failed(): bool {
+	public function csrf_validation_failed(): bool {
 		\Skeleton\Core\Web\HTTP\Status::code_403('CSRF validation failed');
-		return false;
 	}
 
 	/**
