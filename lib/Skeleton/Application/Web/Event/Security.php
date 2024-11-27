@@ -64,7 +64,7 @@ class Security extends \Skeleton\Core\Application\Event {
 	 * @return bool $validated
 	 */
 	public function csrf_validate_failed(): bool {
-		\Skeleton\Core\Web\HTTP\Status::code_403('CSRF validation failed');
+		\Skeleton\Core\Http\Status::code_403('CSRF validation failed');
 		return false;
 	}
 
