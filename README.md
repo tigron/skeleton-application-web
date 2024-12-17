@@ -307,23 +307,6 @@ definition:
     protected function reverse_uri_route_parameters(): array {	
 
 
-#### access_denied
-
-The `access_denied` method is called whenever a module is requested which can
-not be accessed by the user. The optional `secure()` method in the module
-indicates whether the user is granted access or not.
-
-	public function access_denied(\Skeleton\Core\Web\Module $module): void
-
-#### not_found
-
-The `not_found` method is called whenever a module is requested which does not
-exist.
-
-	public function not_found(): void
-
-
-
 ### Security context
 
 #### csrf_validate_enabled
