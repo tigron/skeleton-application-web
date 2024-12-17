@@ -261,6 +261,67 @@ exist.
 
 	public function not_found(): void
 
+### Rewrite context
+
+#### reverse
+
+The `reverse` method performs a reverse rewrite of the rendered html.
+By default, this event will search for any link in the rendered html and calls
+the `reverse_uri` method.
+
+    public function reverse(string $html): string
+
+#### reverse_uri
+
+The `reverse_uri` method receives any url as input. The output should be a
+a url which is rewritten. By default, this method will try to rewrite the
+url based on the routes in the application configuration.
+
+    public function reverse_uri(string $uri): string
+
+#### reverse_uri_route_parameters
+
+The `reverse_uri_route_parameters` method returns a fixed set of parameters that
+can be used by `reverse_uri` to rewrite the given uri. 
+By default, this method returns the following array:
+
+    [
+       'language' => $application->language->name_short
+    ]
+
+Because of this, any route can contain the $language-variable.
+eg
+
+    <a href="/user?action=edit">User</a>
+
+will be rewritten as
+
+    <a href="/nl/user?action=edit">User</a>
+
+if the following route is created
+
+    $language/user
+
+definition:
+
+    protected function reverse_uri_route_parameters(): array {	
+
+
+#### access_denied
+
+The `access_denied` method is called whenever a module is requested which can
+not be accessed by the user. The optional `secure()` method in the module
+indicates whether the user is granted access or not.
+
+	public function access_denied(\Skeleton\Core\Web\Module $module): void
+
+#### not_found
+
+The `not_found` method is called whenever a module is requested which does not
+exist.
+
+	public function not_found(): void
+
 
 
 ### Security context

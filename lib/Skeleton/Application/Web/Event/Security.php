@@ -39,7 +39,7 @@ class Security extends \Skeleton\Core\Application\Event {
 	 * @access public
 	 * @return bool $validated
 	 */
-	public function csrf_validate(string $submitted_token, string $session_token): bool {
+	public function csrf_validate(?string $submitted_token, string $session_token): bool {
 		// We only validate POST requests
 		// This is probably not the most complete implementation, but let's agree that GET requests should never modify data and we're mostly covered
 		if (getenv('REQUEST_METHOD') === 'POST') {

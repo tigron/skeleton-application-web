@@ -49,7 +49,7 @@ class Web extends \Skeleton\Core\Application {
 	 *
 	 * @ccess public
 	 */
-	//public ?Skeleton\Core\Language $language = null;
+	public ?\Skeleton\I18n\Language $language = null;
 
 	/**
 	 * Run the application
@@ -320,6 +320,7 @@ class Web extends \Skeleton\Core\Application {
 			'I18n' => '\\Skeleton\\Application\\Web\\Event\\I18n',
 			'Security' => '\\Skeleton\\Application\\Web\\Event\\Security',
 			'Module' => '\\Skeleton\\Application\\Web\\Event\\Module',
+			'Rewrite' => '\\Skeleton\\Application\\Web\\Event\\Rewrite',
 		];
 		return array_merge($parent_events, $web_events);
 	}
