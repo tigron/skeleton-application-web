@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "tigron/skeleton-core": ">=4"
+        "tigron/skeleton-core": ">=5.2"
     },
     "suggest": {
         "tigron/skeleton-template": "*"
