@@ -136,8 +136,9 @@ class Template {
 
 		// Reverse rewrite the html
 		$application = \Skeleton\Core\Application::get();
-		$output = $application->call_event('rewrite', 'reverse', [$output]);
-
+		if ($application->event_exists('rewrite', 'reverse')) {
+			$output = $application->call_event('rewrite', 'reverse', [$output]);
+		}
 		return $output;
 	}
 
