@@ -134,9 +134,9 @@ class Security extends \Skeleton\Core\Application\Event {
 	 */
 	public function replay_detected(): void {
 		if (!empty($_SERVER['HTTP_REFERER'])) {
-			Session::redirect($_SERVER['HTTP_REFERER'], false);
+			\Skeleton\Core\Http\Session::redirect($_SERVER['HTTP_REFERER'], false);
 		} else {
-			Session::redirect('/');
+			\Skeleton\Core\Http\Session::redirect('/');
 		}
 	}
 
