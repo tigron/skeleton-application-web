@@ -47,6 +47,17 @@ class I18n extends \Skeleton\Core\Application\Event {
 	}
 
 	/**
+	 * Get the translator service for this app
+	 *
+	 * @access public
+	 * @return ?\Skeleton\I18n\Translator\Service $service
+	 */
+	public function get_translator_service(): ?\Skeleton\I18n\Translator\Service {
+		// By default we do not use a translator service
+		return null;
+	}
+
+	/**
 	 * Get translator
 	 *
 	 * @access public
@@ -60,9 +71,18 @@ class I18n extends \Skeleton\Core\Application\Event {
 			return null;
 		}
 
+		try {
+			$translator_service = $this->application->call_event('i18n', 'get_translator_service');
+		} catch (\Exception $e) {
+			$translator_service = null;
+		}
+
 		$translator = new \Skeleton\I18n\Translator($this->application->name);
 		$translator->set_translator_storage($translator_storage);
 		$translator->set_translator_extractor($translator_extractor);
+		if (isset($translator_service) === true) {
+			$translator->set_translator_service($translator_service);
+		}
 		return $translator;
 	}
 
