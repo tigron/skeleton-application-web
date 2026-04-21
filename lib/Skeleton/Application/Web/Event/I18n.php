@@ -119,8 +119,14 @@ class I18n extends \Skeleton\Core\Application\Event {
 				$all_languages[$language->name_short] = $language;
 			}
 
+			if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+				$accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+			} else {
+				$accept_language = '';
+			}
+
 			$matching_language = \Skeleton\I18n\Util::get_best_matching_language(
-				$_SERVER['HTTP_ACCEPT_LANGUAGE'], $available_languages
+				$accept_language, $available_languages
 			);
 
 			if ($matching_language === false) {

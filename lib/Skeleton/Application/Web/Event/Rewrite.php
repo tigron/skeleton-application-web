@@ -115,7 +115,7 @@ class Rewrite extends \Skeleton\Core\Application\Event {
 
 		$module_defined = false;
 
-		if (isset($routes[$classname])) {
+		if ($classname !== null && isset($routes[$classname])) {
 			$module_defined = true;
 		}
 

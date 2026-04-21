@@ -59,7 +59,7 @@ class Replay {
 		}
 
 		if (isset($application->config->replay_header_token_name)) {
-			$this->sheader_token_name = $application->config->replay_header_token_name;
+			$this->header_token_name = $application->config->replay_header_token_name;
 		}
 
 		if (isset($application->config->replay_post_token_name)) {
@@ -182,9 +182,10 @@ class Replay {
 			}
 
 			if (!empty($submitted_token)) {
-				if (in_array($submitted_token, $_SESSION[$this->get_session_tokens_name()])) {
+				if (in_array($submitted_token, $_SESSION[$this->get_session_tokens_name()], true)) {
 					return false;
 				}
+
 				$_SESSION[$this->get_session_tokens_name()][uniqid(time() . '_')] = $submitted_token;
 				return true;
 			}

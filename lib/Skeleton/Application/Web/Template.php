@@ -118,7 +118,7 @@ class Template {
 	 * @access public
 	 * @return string $rendered_template
 	 */
-	public function render(string $template): string {
+	public function render(string $template, bool $rewrite_html = true): string {
 		$csrf = Security\Csrf::get();
 		$this->add_environment('csrf_session_token_name', $csrf->get_session_token_name());
 		$this->add_environment('csrf_header_token_name', $csrf->get_header_token_name());
@@ -136,9 +136,10 @@ class Template {
 
 		// Reverse rewrite the html
 		$application = \Skeleton\Core\Application::get();
-		if ($application->event_exists('rewrite', 'reverse')) {
+		if ($rewrite_html === true && $application->event_exists('rewrite', 'reverse')) {
 			$output = $application->call_event('rewrite', 'reverse', [$output]);
 		}
+
 		return $output;
 	}
 

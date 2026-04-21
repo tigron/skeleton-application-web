@@ -66,7 +66,7 @@ class Csrf {
 		}
 
 		if (isset($application->config->csrf_header_token_name)) {
-			$this->sheader_token_name = $application->config->csrf_header_token_name;
+			$this->header_token_name = $application->config->csrf_header_token_name;
 		}
 
 		if (isset($application->config->csrf_post_token_name)) {
@@ -178,7 +178,7 @@ class Csrf {
 		}
 
 		if ($this->enabled) {
-			return $application->call_event(
+			return (bool) $application->call_event(
 				'security',
 				'csrf_validate',
 				[
@@ -190,9 +190,7 @@ class Csrf {
 
 		unset($_POST[$this->post_token_name]);
 
-		if ($this->enabled === false) {
-			return true;
-		}
+		return true;
 	}
 
 	/**
